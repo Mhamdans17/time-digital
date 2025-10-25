@@ -4,7 +4,7 @@ pipeline {
     environment {
         IMAGE_NAME = "digital-clock"
         IMAGE_TAG = "latest"
-        PORT = "9090"
+        PORT = "8181"
     }
 
     stages {
