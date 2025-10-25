@@ -1,12 +1,5 @@
 pipeline {
-    agent {
-        docker {
-            // Gunakan image Maven resmi tanpa "-dind"
-            image 'maven:3.9.9-eclipse-temurin-17'
-            // Mount Docker socket agar bisa build & run container
-            args '--privileged -v /var/run/docker.sock:/var/run/docker.sock -v /root/.m2:/root/.m2'
-        }
-    }
+    agent any
 
     environment {
         IMAGE_NAME = "digital-clock"
@@ -24,9 +17,11 @@ pipeline {
         stage('Build with Maven') {
             steps {
                 echo '🔧 Building JAR with Maven...'
-                sh 'mvn clean package -DskipTests'
+                sh 'chmod +x mvnw'
+                sh './mvnw clean package -DskipTests'
             }
         }
+
 
         stage('Build Docker Image') {
             steps {
@@ -39,9 +34,7 @@ pipeline {
             steps {
                 echo '🚀 Running container...'
                 sh '''
-                if [ "$(docker ps -q -f name=${IMAGE_NAME})" ]; then
-                  docker stop ${IMAGE_NAME} && docker rm ${IMAGE_NAME}
-                fi
+                docker ps -q --filter "name=${IMAGE_NAME}" | grep -q . && docker stop ${IMAGE_NAME} && docker rm ${IMAGE_NAME} || true
                 docker run -d -p ${PORT}:${PORT} --name ${IMAGE_NAME} ${IMAGE_NAME}:${IMAGE_TAG}
                 '''
             }
