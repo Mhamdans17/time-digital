@@ -1,8 +1,10 @@
 pipeline {
     agent {
         docker {
-            image 'maven:3.9.9-eclipse-temurin-17-dind'
-            args '--privileged -v /var/run/docker.sock:/var/run/docker.sock'
+            // Gunakan image Maven resmi tanpa "-dind"
+            image 'maven:3.9.9-eclipse-temurin-17'
+            // Mount Docker socket agar bisa build & run container
+            args '--privileged -v /var/run/docker.sock:/var/run/docker.sock -v /root/.m2:/root/.m2'
         }
     }
 
@@ -37,7 +39,9 @@ pipeline {
             steps {
                 echo '🚀 Running container...'
                 sh '''
-                docker ps -q --filter "name=${IMAGE_NAME}" | grep -q . && docker stop ${IMAGE_NAME} && docker rm ${IMAGE_NAME} || true
+                if [ "$(docker ps -q -f name=${IMAGE_NAME})" ]; then
+                  docker stop ${IMAGE_NAME} && docker rm ${IMAGE_NAME}
+                fi
                 docker run -d -p ${PORT}:${PORT} --name ${IMAGE_NAME} ${IMAGE_NAME}:${IMAGE_TAG}
                 '''
             }
