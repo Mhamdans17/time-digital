@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Time Service</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(to right, #4facfe, #00f2fe);
+            color: #fff;
+            flex-direction: column;
+            text-align: center;
+        }
+        .card {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+        }
+        h1, h2 {
+            margin: 0.5rem 0;
+        }
+        button {
+            margin-top: 1rem;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 8px;
+            background: #fff;
+            color: #4facfe;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        button:hover {
+            background: #4facfe;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+<div class="card">
+    <h1>🕒 Current Time</h1>
+    <h2 id="time">--:--:--</h2>
+    <h2 id="date">----</h2>
+    <h3 id="timezone">----</h3>
+    <button onclick="fetchTime()">Refresh</button>
+</div>
+
+<script>
+    async function fetchTime() {
+        try {
+            const res = await fetch('/api/time');
+            const data = await res.json();
+            document.getElementById('time').innerText = data.time;
+            document.getElementById('date').innerText = data.date;
+            document.getElementById('timezone').innerText = data.timezone;
+        } catch (err) {
+            console.error(err);
+            alert('Failed to fetch time.');
+        }
+    }
+
+    // Auto-refresh every second
+    fetchTime();
+    setInterval(fetchTime, 1000);
+</script>
+</body>
+</html>
